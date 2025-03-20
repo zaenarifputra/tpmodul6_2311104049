@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace tpmodul6_2311104049
 {
-    using System;
-
     public class SayaTubeVideo
     {
         private int id;
@@ -12,6 +11,12 @@ namespace tpmodul6_2311104049
 
         public SayaTubeVideo(string title)
         {
+            // Prekondisi: Judul tidak boleh null atau lebih dari 100 karakter
+            if (string.IsNullOrEmpty(title) || title.Length > 100)
+            {
+                throw new ArgumentException("Judul video tidak boleh kosong atau lebih dari 100 karakter");
+            }
+
             Random rand = new Random();
             this.id = rand.Next(10000, 99999); // ID 5 digit
             this.title = title;
@@ -20,7 +25,27 @@ namespace tpmodul6_2311104049
 
         public void IncreasePlayCount(int count)
         {
-            playCount += count;
+            if (count > 10000000)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count),
+                    "Maksimal penambahan play count adalah 10.000.000");
+            }
+
+            try
+            {
+                checked
+                {
+                    if (playCount + count < 0) // Antisipasi overflow
+                    {
+                        throw new OverflowException("Play count melebihi batas maksimum integer.");
+                    }
+                    playCount += count;
+                }
+            }
+            catch (OverflowException e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+            }
         }
 
         public void PrintVideoDetails()
